@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const configDB = require("./configDB");
 // const logger = require("pino")();
-console.log('cofing.moongose', configDB.moongoose.enabled)
+// console.log('cofing.moongose', configDB.moongoose.enabled)
 
 
 const connectMongoDB = async () => {
