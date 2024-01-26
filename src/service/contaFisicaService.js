@@ -46,10 +46,11 @@ const searchTransaction = async (objTransaction) => {
   }
 
   // Incluindo o campo 'cod' na resposta
-  return res.json({
-    ...transacaoEncontrada.toObject(),
-    idTransacao: idTransacao,
-  });
+  return transacaoEncontrada
+  // return res.json({
+  //   ...transacaoEncontrada.toObject(),
+  //   idTransacao: idTransacao,
+  // });
 };
 
 const searchTransactions = async (objTransaction) => {
@@ -58,7 +59,8 @@ const searchTransactions = async (objTransaction) => {
 
   transacoesEncontradas = await ContaFisicaTransaction.find();
 
-  return res.status(200).json(transacoesEncontradas);
+  return transacoesEncontradas
+  // return res.status(200).json(transacoesEncontradas);
 };
 
 // Atualiza uma transação por id
@@ -76,7 +78,8 @@ const updateTransaction = async (objTransaction) => {
   const transacaoAtualizada = { ...transacaoEncontrada.toObject(), ...data };
 
   // Incluindo o campo 'cod' na resposta
-  return res.json(transacaoAtualizada);
+  // return res.json(transacaoAtualizada);
+  return transacaoAtualizada
 }
 
 // Deleta uma transação por id
@@ -88,7 +91,7 @@ const deleteTransaction = async (objTransaction) => {
     res.status(404).json({ mensagem: "Atleta não encontrado." });
   } else {
     await AlimentacaoTransaction.deleteOne({ idTransacao: idTransacao });
-    return res.status(200).json({});
+    // return res.status(200).json({});
   }
 }
 
