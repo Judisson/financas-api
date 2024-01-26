@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const transactionRoutes = require('./transaction.route')
+const AlimentacaoRoutes = require('./alimentacao.route')
+const ContaFisicaRoutes = require('./contaFisica.route')
+const ContaPoupancaRoutes = require('./contaPoupanca.route')                                               
 
-router.use('/', transactionRoutes);
+router.use('/alimentacao', AlimentacaoRoutes);
+router.use('/conta-fisica', ContaFisicaRoutes);
+router.use('/conta-poupanca', ContaPoupancaRoutes);
 
 router.get('/', (req, res) => {
     res.send('Servidor rodando!');
