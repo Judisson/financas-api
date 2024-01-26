@@ -12,6 +12,8 @@ const createTransaction = async (objTransaction) => {
 
   const novoid = ultimaTransacao.length > 0 ? ultimaTransacao[0].maxCod + 1 : 1;
 
+  console.log('novoid', novoid)
+
   newTransaction = new AlimentacaoTransaction({
     title,
     valor,
@@ -20,6 +22,8 @@ const createTransaction = async (objTransaction) => {
     date,
     idTransacao: novoid,
   });
+
+  console.log("newTransaction", newTransaction)
 
   if (title === '') {
     console.log('Error: Invalid title');

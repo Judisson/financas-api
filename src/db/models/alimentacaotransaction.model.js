@@ -6,7 +6,7 @@ const alimentacaoSchema = new mongoose.Schema({
   title: String,
   tipoValor: String,
   date: Date,
-  idTransaction: { type: Number, unique: true, required: true }
+  idTransacao: { type: Number, unique: true, required: true }
 })
 
 const AlimentacaoTransaction = mongoose.model('alimentacaoTransactions', alimentacaoSchema);

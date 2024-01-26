@@ -6,7 +6,7 @@ const contaFisicaSchema = new mongoose.Schema({
   title: String,
   tipoValor: String,
   date: Date,
-  idTransaction: { type: Number, unique: true, required: true }
+  idTransacao: { type: Number, unique: true, required: true }
 })
 
 const ContaFisicaTransaction = mongoose.model('contaFisicaTransactions', contaFisicaSchema);

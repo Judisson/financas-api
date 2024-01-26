@@ -6,7 +6,7 @@ const contaPoupancaSchema = new mongoose.Schema({
   title: String,
   tipoValor: String,
   date: Date,
-  idTransaction: { type: Number, unique: true, required: true }
+  idTransacao: { type: Number, unique: true, required: true }
 })
 
 const ContaPoupancaTransaction = mongoose.model('contaPoupancaTransactions', contaPoupancaSchema);
