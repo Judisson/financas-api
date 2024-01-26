@@ -7,7 +7,7 @@ const createTransaction = async (objTransaction) => {
   let newTransaction;
 
   const ultimaTransacao = await AlimentacaoTransaction.aggregate([
-    { $group: { _id: null, maxCod: { $max: '$idTransaction' } } },
+    { $group: { _id: null, maxCod: { $max: '$idTransacao' } } },
   ]);
 
   const novoid = ultimaTransacao.length > 0 ? ultimaTransacao[0].maxCod + 1 : 1;
