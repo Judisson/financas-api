@@ -2,7 +2,7 @@ const dotenv = require('dotenv').config();
 const AlimentacaoTransaction = require('../db/models/alimentacaotransaction.model');
 
 const createTransaction = async (objTransaction) => {
-  let { title, valor, categoria, tipoValor, date, idTransacao, tipoTransacao } =
+  let { title, valor, categoria, tipoValor, date, idTransacao, statusTransacao } =
     objTransaction;
   let newTransaction;
 
@@ -12,18 +12,19 @@ const createTransaction = async (objTransaction) => {
 
   const novoid = ultimaTransacao.length > 0 ? ultimaTransacao[0].maxCod + 1 : 1;
 
-  console.log('novoid', novoid)
+  // console.log('novoid', novoid)
 
   newTransaction = new AlimentacaoTransaction({
     title,
     valor,
     categoria,
+    statusTransacao,
     tipoValor,
     date,
-    idTransacao: novoid,
+    idTransacao: novoid
   });
 
-  console.log("newTransaction", newTransaction)
+  // console.log("newTransaction", newTransaction)
 
   if (title === '') {
     console.log('Error: Invalid title');
@@ -44,7 +45,8 @@ const searchTransaction = async (objTransaction) => {
   transacaoEncontrada = await AlimentacaoTransaction.findOne({ idTransacao });
 
   if (!transacaoEncontrada) {
-    return res.status(404).json({ mensagem: 'Transacação não encontrada' });
+    // return res.status(404).json({ mensagem: 'Transacação não encontrada' });
+    console.log("Transacão não encontrada (deleteTransaction)")
   }
 
   // Incluindo o campo 'cod' na resposta
@@ -60,6 +62,7 @@ const searchTransactions = async (objTransaction) => {
   let transacoesEncontradas;
 
   transacoesEncontradas = await AlimentacaoTransaction.find();
+  // console.log("transacoesEncontradas", transacoesEncontradas)
 
   // return res.status(200).json(transacoesEncontradas);
   return transacoesEncontradas
@@ -71,7 +74,8 @@ const updateTransaction = async (objTransaction) => {
   const transacaoEncontrada = await AlimentacaoTransaction.findOne({ idTransacao: idTransacao });
 
   if (!transacaoEncontrada) {
-    return res.status(404).json({ mensagem: "Atleta não encontrado." });
+    // return res.status(404).json({ mensagem: "Atleta não encontrado." });
+    console.log("Transacão não encontrada (deleteTransaction)")
   }
 
   await AlimentacaoTransaction.updateOne({ idTransacao: idTransacao }, data);
@@ -86,11 +90,13 @@ const updateTransaction = async (objTransaction) => {
 
 // Deleta uma transação por id
 const deleteTransaction = async (objTransaction) => {
+  console.log("objTransaction 92", objTransaction)
   const { idTransacao } = objTransaction;
   const transacaoEncontrada = await AlimentacaoTransaction.findOne({ idTransacao: idTransacao });
 
   if (!transacaoEncontrada) {
-    res.status(404).json({ mensagem: "Atleta não encontrado." });
+    // res.status(404).json({ mensagem: "Atleta não encontrado." });
+    console.log("Transacão não encontrada (deleteTransaction)")
   } else {
     await AlimentacaoTransaction.deleteOne({ idTransacao: idTransacao });
     // return res.status(200).json({});
