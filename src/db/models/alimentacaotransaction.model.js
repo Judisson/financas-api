@@ -5,6 +5,7 @@ const alimentacaoSchema = new mongoose.Schema({
   categoria: String,
   title: String,
   tipoValor: String,
+  statusTransacao: String,
   date: Date,
   idTransacao: { type: Number, unique: true, required: true }
 })
