@@ -1,12 +1,14 @@
 const mongoose = require('mongoose')
 
 const contaFisicaSchema = new mongoose.Schema({
+  idTransacao: { type: Number, unique: true, required: true },
+  title: String,
   valor: Number,
   categoria: String,
-  title: String,
   tipoValor: String,
+  statusTransacao: String,
   date: Date,
-  idTransacao: { type: Number, unique: true, required: true }
+  horaTransacao: String
 })
 
 const ContaFisicaTransaction = mongoose.model('contaFisicaTransactions', contaFisicaSchema);
