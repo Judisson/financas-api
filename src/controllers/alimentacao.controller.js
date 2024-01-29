@@ -9,7 +9,7 @@ exports.Create = async (req, res) => {
 
 exports.Search = async (req, res) => {
   const data = await searchTransaction(
-    req.body || []
+    req.query || []
   )
   return res.status(200).json(data)
 }
@@ -23,7 +23,7 @@ exports.SearchList = async (req, res) => {
 
 exports.Update = async (req, res) => {
   const data = await updateTransaction(
-    req.body || []
+    req.body, req.query || []
   )
   return res.status(200).json(data)
 }
