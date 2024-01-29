@@ -1,5 +1,5 @@
 const express = require('express')
-const controller = require('../controllers/alimentacao.controller');
+const controller = require('../controllers/contaFisica.controller');
 const router = express.Router();
 
 router.post('/transaction/create', controller.Create)
