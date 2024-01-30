@@ -2,7 +2,7 @@ const dotenv = require('dotenv').config();
 const AlimentacaoTransaction = require('../db/models/alimentacaotransaction.model');
 
 const createTransaction = async (objTransaction) => {
-  let { title, valor, categoria, tipoValor, date, idTransacao, statusTransacao, horaTransacao } =
+  let { title, valor, categoria, tipoValor, produtos, date, idTransacao, statusTransacao, horaTransacao } =
     objTransaction;
   let newTransaction;
 
@@ -19,6 +19,7 @@ const createTransaction = async (objTransaction) => {
     title,
     valor,
     categoria,
+    produtos,
     statusTransacao,
     tipoValor,
     date,

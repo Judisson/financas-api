@@ -6,6 +6,7 @@ const alimentacaoSchema = new mongoose.Schema({
   valor: Number,
   categoria: String,
   tipoValor: String,
+  produtos: [{ nomeProduto: String, valorProduto: Number}],
   statusTransacao: String,
   date: Date,
   horaTransacao: String
