@@ -2,7 +2,7 @@ const dotenv = require('dotenv').config();
 const AlimentacaoTransaction = require('../db/models/alimentacaotransaction.model');
 
 const createTransaction = async (objTransaction) => {
-  let { title, valor, categoria, tipoValor, date, idTransacao, statusTransacao } =
+  let { title, valor, categoria, tipoValor, date, idTransacao, statusTransacao, horaTransacao } =
     objTransaction;
   let newTransaction;
 
@@ -15,13 +15,14 @@ const createTransaction = async (objTransaction) => {
   // console.log('novoid', novoid)
 
   newTransaction = new AlimentacaoTransaction({
+    idTransacao: novoid,
     title,
     valor,
     categoria,
     statusTransacao,
     tipoValor,
     date,
-    idTransacao: novoid
+    horaTransacao
   });
 
   // console.log("newTransaction", newTransaction)
@@ -46,7 +47,7 @@ const searchTransaction = async (objTransaction) => {
 
   if (!transacaoEncontrada) {
     // return res.status(404).json({ mensagem: 'Transacação não encontrada' });
-    console.log("Transacão não encontrada (deleteTransaction)")
+    console.log("Transacão não encontrada (searchTransaction)")
   }
 
   // Incluindo o campo 'cod' na resposta
@@ -69,13 +70,15 @@ const searchTransactions = async (objTransaction) => {
 };
 
 // Atualiza uma transação por id
-const updateTransaction = async (objTransaction) => {
-  const { idTransacao, ...data } = objTransaction;  
+const updateTransaction = async (objTransaction, id) => {
+  console.log('vai tentar atualizar', objTransaction)
+  const { ...data } = objTransaction;
+  const { idTransacao } = id
   const transacaoEncontrada = await AlimentacaoTransaction.findOne({ idTransacao: idTransacao });
 
   if (!transacaoEncontrada) {
     // return res.status(404).json({ mensagem: "Atleta não encontrado." });
-    console.log("Transacão não encontrada (deleteTransaction)")
+    console.log("Transacão não encontrada (updateTransaction)")
   }
 
   await AlimentacaoTransaction.updateOne({ idTransacao: idTransacao }, data);
