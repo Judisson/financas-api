@@ -2,9 +2,9 @@ const mongoose = require('mongoose')
 
 const alimentacaoSchema = new mongoose.Schema({
   idTransacao: { type: Number, unique: true, required: true },
-  title: String,
+  estabelecimento: String,
   valor: Number,
-  categoria: String,
+  categoriaEstabelecimento: String,
   tipoValor: String,
   produtos: [{ nomeProduto: String, valorProduto: Number}],
   statusTransacao: String,

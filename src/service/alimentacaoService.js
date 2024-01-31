@@ -2,7 +2,7 @@ const dotenv = require('dotenv').config();
 const AlimentacaoTransaction = require('../db/models/alimentacaotransaction.model');
 
 const createTransaction = async (objTransaction) => {
-  let { title, valor, categoria, tipoValor, produtos, date, idTransacao, statusTransacao, horaTransacao } =
+  let { estabelecimento, valor, categoriaEstabelecimento, tipoValor, produtos, date, idTransacao, statusTransacao, horaTransacao } =
     objTransaction;
   let newTransaction;
 
@@ -16,9 +16,9 @@ const createTransaction = async (objTransaction) => {
 
   newTransaction = new AlimentacaoTransaction({
     idTransacao: novoid,
-    title,
+    estabelecimento,
     valor,
-    categoria,
+    categoriaEstabelecimento,
     produtos,
     statusTransacao,
     tipoValor,
@@ -28,8 +28,8 @@ const createTransaction = async (objTransaction) => {
 
   // console.log("newTransaction", newTransaction)
 
-  if (title === '') {
-    console.log('Error: Invalid title');
+  if (estabelecimento === '') {
+    console.log('Error: Não pode estar vazio o Estabelecimento');
   } else {
     newTransaction
       .save()
