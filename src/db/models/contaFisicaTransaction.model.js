@@ -2,9 +2,11 @@ const mongoose = require('mongoose')
 
 const contaFisicaSchema = new mongoose.Schema({
   idTransacao: { type: Number, unique: true, required: true },
-  title: String,
+  estabelecimento: String,
   valor: Number,
-  categoria: String,
+  categoriaPrincipal: String,
+  subCategoria: String,
+  formaPagamento: String,
   tipoValor: String,
   statusTransacao: String,
   date: Date,
