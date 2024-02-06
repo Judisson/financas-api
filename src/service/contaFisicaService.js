@@ -2,9 +2,21 @@ const dotenv = require('dotenv').config();
 const ContaFisicaTransaction = require('../db/models/contaFisicaTransaction.model');
 
 const createTransaction = async (objTransaction) => {
-  let { title, valor, categoria, tipoValor, date, idTransacao, statusTransacao, horaTransacao } =
-    objTransaction;
+  let {
+    estabelecimento,
+    valor,
+    categoriaPrincipal,
+    tipoValor,
+    date,
+    idTransacao,
+    formaPagamento,
+    statusTransacao,
+    horaTransacao,
+    subCategoria,
+  } = objTransaction;
   let newTransaction;
+
+  console.log('categoria principal: ' + categoriaPrincipal);
 
   const ultimaTransacao = await ContaFisicaTransaction.aggregate([
     { $group: { _id: null, maxCod: { $max: '$idTransacao' } } },
@@ -14,17 +26,21 @@ const createTransaction = async (objTransaction) => {
 
   newTransaction = new ContaFisicaTransaction({
     idTransacao: novoid,
-    title,
+    estabelecimento,
     valor,
-    categoria,
+    subCategoria,
+    categoriaPrincipal,
+    formaPagamento,
     statusTransacao,
     tipoValor,
     date,
-    horaTransacao
+    horaTransacao,
   });
 
-  if (title === '') {
-    console.log('Error: Invalid title');
+  console.log('objeto inteiro', newTransaction);
+
+  if (estabelecimento === '') {
+    console.log('Error: Invalid estabelecimento');
   } else {
     newTransaction
       .save()
@@ -40,16 +56,16 @@ const searchTransaction = async (objTransaction) => {
   let transacaoEncontrada;
 
   // if (tipoTransacao === 'conta-fisica') {
-    transacaoEncontrada = await ContaFisicaTransaction.findOne({ idTransacao });
+  transacaoEncontrada = await ContaFisicaTransaction.findOne({ idTransacao });
   // }
 
   if (!transacaoEncontrada) {
     // return res.status(404).json({ mensagem: 'Transacação não encontrada' });
-    console.log("Transacão não encontrada (searchTransaction)")
+    console.log('Transacão não encontrada (searchTransaction)');
   }
 
   // Incluindo o campo 'cod' na resposta
-  return transacaoEncontrada
+  return transacaoEncontrada;
   // return res.json({
   //   ...transacaoEncontrada.toObject(),
   //   idTransacao: idTransacao,
@@ -62,18 +78,20 @@ const searchTransactions = async (objTransaction) => {
 
   transacoesEncontradas = await ContaFisicaTransaction.find();
 
-  return transacoesEncontradas
+  return transacoesEncontradas;
   // return res.status(200).json(transacoesEncontradas);
 };
 
 // Atualiza uma transação por id
 const updateTransaction = async (objTransaction) => {
-  const { idTransacao, ...data } = objTransaction;  
-  const transacaoEncontrada = await ContaFisicaTransaction.findOne({ idTransacao: idTransacao });
+  const { idTransacao, ...data } = objTransaction;
+  const transacaoEncontrada = await ContaFisicaTransaction.findOne({
+    idTransacao: idTransacao,
+  });
 
   if (!transacaoEncontrada) {
     // return res.status(404).json({ mensagem: "Atleta não encontrado." });
-    console.log("Transacão não encontrada (updateTransaction)")
+    console.log('Transacão não encontrada (updateTransaction)');
   }
 
   await ContaFisicaTransaction.updateOne({ idTransacao: idTransacao }, data);
@@ -83,22 +101,62 @@ const updateTransaction = async (objTransaction) => {
 
   // Incluindo o campo 'cod' na resposta
   // return res.json(transacaoAtualizada);
-  return transacaoAtualizada
-}
+  return transacaoAtualizada;
+};
 
 // Deleta uma transação por id
 const deleteTransaction = async (objTransaction) => {
-  console.log('FoiChamadoo delete')
+  console.log('FoiChamadoo delete');
   const { idTransacao } = objTransaction;
-  const transacaoEncontrada = await ContaFisicaTransaction.findOne({ idTransacao: idTransacao });
+  const transacaoEncontrada = await ContaFisicaTransaction.findOne({
+    idTransacao: idTransacao,
+  });
 
   if (!transacaoEncontrada) {
     // res.status(404).json({ mensagem: "Atleta não encontrado." });
-    console.log("Transacão não encontrada (deleteTransaction)")
+    console.log('Transacão não encontrada (deleteTransaction)');
   } else {
     await ContaFisicaTransaction.deleteOne({ idTransacao: idTransacao });
     // return res.status(200).json({});
   }
-}
+};
 
-module.exports = { createTransaction, searchTransaction, searchTransactions, updateTransaction, deleteTransaction };
+const resumoTransactions = async (objTransaction) => {
+  let transacoesEncontradas,
+    saidas = 0,
+    entradas = 0,
+    total = 0;
+
+  try {
+    transacoesEncontradas = await ContaFisicaTransaction.find();
+
+    total = transacoesEncontradas.forEach((transacao) => {
+      if (transacao.tipoValor === 'Entrada') {
+        entradas += transacao.valor;
+      } else if (transacao.tipoValor === 'Saida') {
+        saidas += transacao.valor;
+      }
+    });
+
+    total = entradas - saidas;
+
+    return {
+      total: Number(total).toFixed(2),
+      entradas: Number(entradas).toFixed(2),
+      saidas: Number(saidas).toFixed(2),
+    };
+  } catch (error) {
+    console.error('Erro ao resumir transações:', error);
+    throw error; // Relança o erro para ser tratado onde a função é chamada
+  }
+  // return res.status(200).json(transacoesEncontradas);
+};
+
+module.exports = {
+  createTransaction,
+  searchTransaction,
+  searchTransactions,
+  updateTransaction,
+  deleteTransaction,
+  resumoTransactions,
+};

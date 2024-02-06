@@ -2,8 +2,17 @@ const dotenv = require('dotenv').config();
 const AlimentacaoTransaction = require('../db/models/alimentacaotransaction.model');
 
 const createTransaction = async (objTransaction) => {
-  let { estabelecimento, valor, categoriaEstabelecimento, tipoValor, produtos, date, idTransacao, statusTransacao, horaTransacao } =
-    objTransaction;
+  let {
+    estabelecimento,
+    valor,
+    categoriaEstabelecimento,
+    tipoValor,
+    produtos,
+    date,
+    idTransacao,
+    statusTransacao,
+    horaTransacao,
+  } = objTransaction;
   let newTransaction;
 
   const ultimaTransacao = await AlimentacaoTransaction.aggregate([
@@ -23,7 +32,7 @@ const createTransaction = async (objTransaction) => {
     statusTransacao,
     tipoValor,
     date,
-    horaTransacao
+    horaTransacao,
   });
 
   // console.log("newTransaction", newTransaction)
@@ -48,11 +57,11 @@ const searchTransaction = async (objTransaction) => {
 
   if (!transacaoEncontrada) {
     // return res.status(404).json({ mensagem: 'Transacação não encontrada' });
-    console.log("Transacão não encontrada (searchTransaction)")
+    console.log('Transacão não encontrada (searchTransaction)');
   }
 
   // Incluindo o campo 'cod' na resposta
-  return transacaoEncontrada
+  return transacaoEncontrada;
   // return res.json({
   //   ...transacaoEncontrada.toObject(),
   //   idTransacao: idTransacao,
@@ -67,19 +76,21 @@ const searchTransactions = async (objTransaction) => {
   // console.log("transacoesEncontradas", transacoesEncontradas)
 
   // return res.status(200).json(transacoesEncontradas);
-  return transacoesEncontradas
+  return transacoesEncontradas;
 };
 
 // Atualiza uma transação por id
 const updateTransaction = async (objTransaction, id) => {
-  console.log('vai tentar atualizar', objTransaction)
+  console.log('vai tentar atualizar', objTransaction);
   const { ...data } = objTransaction;
-  const { idTransacao } = id
-  const transacaoEncontrada = await AlimentacaoTransaction.findOne({ idTransacao: idTransacao });
+  const { idTransacao } = id;
+  const transacaoEncontrada = await AlimentacaoTransaction.findOne({
+    idTransacao: idTransacao,
+  });
 
   if (!transacaoEncontrada) {
     // return res.status(404).json({ mensagem: "Atleta não encontrado." });
-    console.log("Transacão não encontrada (updateTransaction)")
+    console.log('Transacão não encontrada (updateTransaction)');
   }
 
   await AlimentacaoTransaction.updateOne({ idTransacao: idTransacao }, data);
@@ -89,22 +100,62 @@ const updateTransaction = async (objTransaction, id) => {
 
   // Incluindo o campo 'cod' na resposta
   // return res.json(transacaoAtualizada);
-  return transacaoAtualizada
-}
+  return transacaoAtualizada;
+};
 
 // Deleta uma transação por id
 const deleteTransaction = async (objTransaction) => {
-  console.log("objTransaction 92", objTransaction)
+  console.log('objTransaction 92', objTransaction);
   const { idTransacao } = objTransaction;
-  const transacaoEncontrada = await AlimentacaoTransaction.findOne({ idTransacao: idTransacao });
+  const transacaoEncontrada = await AlimentacaoTransaction.findOne({
+    idTransacao: idTransacao,
+  });
 
   if (!transacaoEncontrada) {
     // res.status(404).json({ mensagem: "Atleta não encontrado." });
-    console.log("Transacão não encontrada (deleteTransaction)")
+    console.log('Transacão não encontrada (deleteTransaction)');
   } else {
     await AlimentacaoTransaction.deleteOne({ idTransacao: idTransacao });
     // return res.status(200).json({});
   }
-}
+};
 
-module.exports = { createTransaction, searchTransaction, searchTransactions, updateTransaction, deleteTransaction };
+const resumoTransactions = async (objTransaction) => {
+  let transacoesEncontradas,
+    saidas = 0,
+    entradas = 0,
+    total = 0;
+
+  try {
+    transacoesEncontradas = await AlimentacaoTransaction.find();
+
+    total = transacoesEncontradas.forEach((transacao) => {
+      if (transacao.tipoValor === 'Entrada') {
+        entradas += transacao.valor;
+      } else if (transacao.tipoValor === 'Saída') {
+        saidas += transacao.valor;
+      }
+    });
+
+    total = entradas - saidas;
+
+    return {
+      total: Number(total).toFixed(2),
+      entradas: Number(entradas).toFixed(2),
+      saidas: Number(saidas).toFixed(2),
+    };
+  } catch (error) {
+    console.error('Erro ao resumir transações:', error);
+    throw error; // Relança o erro para ser tratado onde a função é chamada
+  }
+  // return res.status(200).json(transacoesEncontradas);
+};
+
+module.exports = {
+  createTransaction,
+  searchTransaction,
+  searchTransactions,
+  updateTransaction,
+  deleteTransaction,
+  resumoTransactions,
+};
