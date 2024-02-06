@@ -1,4 +1,4 @@
-const { createTransaction, searchTransaction, searchTransactions, updateTransaction, deleteTransaction } = require('../service/contaFisicaService')
+const { createTransaction, searchTransaction, searchTransactions, updateTransaction, deleteTransaction, resumoTransactions } = require('../service/contaFisicaService')
 
 exports.Create = async (req, res) => {
   const data = await createTransaction(
@@ -30,6 +30,13 @@ exports.Update = async (req, res) => {
 
 exports.Delete = async (req, res) => {
   const data = await deleteTransaction(
+    req.body || []
+  )
+  return res.status(200).json(data)
+}
+
+exports.Resumo = async (req, res) => {
+  const data = await resumoTransactions(
     req.body || []
   )
   return res.status(200).json(data)
