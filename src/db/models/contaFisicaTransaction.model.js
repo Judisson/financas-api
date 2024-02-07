@@ -8,6 +8,7 @@ const contaFisicaSchema = new mongoose.Schema({
   subCategoria: String,
   formaPagamento: String,
   tipoValor: String,
+  produtos: [{ nomeProduto: String, valorProduto: Number}],
   statusTransacao: String,
   date: Date,
   horaTransacao: String
