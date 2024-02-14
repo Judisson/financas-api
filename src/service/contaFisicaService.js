@@ -5,18 +5,16 @@ const createTransaction = async (objTransaction) => {
   let {
     estabelecimento,
     valor,
-    categoriaPrincipal,
+    categoriaEstabelecimento,
+    subCategoria,
     tipoValor,
     date,
-    idTransacao,
+    produtos,
     formaPagamento,
     statusTransacao,
     horaTransacao,
-    subCategoria,
   } = objTransaction;
   let newTransaction;
-
-  console.log('categoria principal: ' + categoriaPrincipal);
 
   const ultimaTransacao = await ContaFisicaTransaction.aggregate([
     { $group: { _id: null, maxCod: { $max: '$idTransacao' } } },
@@ -27,14 +25,15 @@ const createTransaction = async (objTransaction) => {
   newTransaction = new ContaFisicaTransaction({
     idTransacao: novoid,
     estabelecimento,
-    valor,
+    categoriaEstabelecimento,
     subCategoria,
-    categoriaPrincipal,
-    formaPagamento,
-    statusTransacao,
-    tipoValor,
     date,
     horaTransacao,
+    valor,
+    formaPagamento,
+    tipoValor,
+    statusTransacao,
+    produtos,
   });
 
   console.log('objeto inteiro', newTransaction);
@@ -89,6 +88,8 @@ const updateTransaction = async (objTransaction) => {
     idTransacao: idTransacao,
   });
 
+  console.log("updateTransaction(1) - data: ", data)
+
   if (!transacaoEncontrada) {
     // return res.status(404).json({ mensagem: "Atleta não encontrado." });
     console.log('Transacão não encontrada (updateTransaction)');
@@ -100,8 +101,8 @@ const updateTransaction = async (objTransaction) => {
   const transacaoAtualizada = { ...transacaoEncontrada.toObject(), ...data };
 
   // Incluindo o campo 'cod' na resposta
-  // return res.json(transacaoAtualizada);
   return transacaoAtualizada;
+  // return data;
 };
 
 // Deleta uma transação por id
@@ -130,10 +131,12 @@ const resumoTransactions = async (objTransaction) => {
   try {
     transacoesEncontradas = await ContaFisicaTransaction.find();
 
+    
+
     total = transacoesEncontradas.forEach((transacao) => {
       if (transacao.tipoValor === 'Entrada') {
         entradas += transacao.valor;
-      } else if (transacao.tipoValor === 'Saida') {
+      } else if (transacao.tipoValor === 'Saída') {
         saidas += transacao.valor;
       }
     });

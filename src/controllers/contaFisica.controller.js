@@ -9,7 +9,7 @@ exports.Create = async (req, res) => {
 
 exports.Search = async (req, res) => {
   const data = await searchTransaction(
-    req.body || []
+    req.query || []
   )
   return res.status(200).json(data)
 }
