@@ -1,18 +1,19 @@
 const dotenv = require('dotenv').config();
+const Cartao = require('../db/models/cartaoCredito.model');
 const CartaoCreditoTransaction = require('../db/models/cartaoCreditoTransaction.model');
 
 const createTransaction = async (objTransaction) => {
   let {
-    estabelecimento,
-    valor,
-    categoriaEstabelecimento,
-    subCategoria,
-    tipoValor,
-    date,
-    produtos,
-    formaPagamento,
-    statusTransacao,
-    horaTransacao,
+  estabelecimento,
+  categoriaEstabelecimento,
+  subCategoria,
+  date,
+  horaTransacao,
+  valor,
+  cartaoCredito,
+  juros,
+  parcelas,
+  produtos,
   } = objTransaction;
   let newTransaction;
 
@@ -25,15 +26,15 @@ const createTransaction = async (objTransaction) => {
   newTransaction = new CartaoCreditoTransaction({
     idTransacao: novoid,
     estabelecimento,
-    categoriaEstabelecimento,
-    subCategoria,
-    date,
-    horaTransacao,
-    valor,
-    formaPagamento,
-    tipoValor,
-    statusTransacao,
-    produtos,
+  categoriaEstabelecimento,
+  subCategoria,
+  date,
+  horaTransacao,
+  valor,
+  cartaoCredito,
+  juros,
+  parcelas,
+  produtos,
   });
 
   console.log('objeto inteiro', newTransaction);
@@ -50,7 +51,7 @@ const createTransaction = async (objTransaction) => {
   return newTransaction;
 };
 
-const searchTransaction = async (objTransaction) => {
+const readTransaction = async (objTransaction) => {
   let { idTransacao, tipoTransacao } = objTransaction;
   let transacaoEncontrada;
 
@@ -71,7 +72,7 @@ const searchTransaction = async (objTransaction) => {
   // });
 };
 
-const searchTransactions = async (objTransaction) => {
+const readTransactions = async (objTransaction) => {
   let { tipoTransacao } = objTransaction;
   let transacoesEncontradas;
 
@@ -122,6 +123,63 @@ const deleteTransaction = async (objTransaction) => {
   }
 };
 
+const searchTransactions = async (objPesquisa) => {
+  let { estabelecimento, cartaoCredito, mesesdoAno } = objPesquisa;
+  let transacoesEncontradas;
+  let query = {};
+
+  if (estabelecimento) {
+    query.estabelecimento = estabelecimento;
+  }
+
+  if (cartaoCredito) {
+    query.cartaoCredito = cartaoCredito;
+
+    const cartao = await Cartao.findById(cartaoCredito);
+    if (cartao && mesesdoAno !== undefined) {
+      const dateAtualizacao = cartao.dateAtualizacao;
+
+      // Obtém o primeiro dia do mês atual e o primeiro dia do próximo mês
+      // const primeiroDiaAtual = new Date();
+      // primeiroDiaAtual.setDate(1);
+
+      // const primeiroDiaProximoMes = new Date();
+      // primeiroDiaProximoMes.setMonth(primeiroDiaProximoMes.getMonth() + 1);
+      // primeiroDiaProximoMes.setDate(1);
+
+      // // Configura a consulta para o intervalo entre o dia de atualização e o próximo mês
+      // query.data = {
+      //   $gte: new Date(primeiroDiaAtual.getFullYear(), mesesdoAno, dateAtualizacao),
+      //   $lt: new Date(primeiroDiaProximoMes.getFullYear(), primeiroDiaProximoMes.getMonth(), dateAtualizacao),
+      // };
+
+      const dataInicial = new Date(`${mesesdoAno}-01`);
+      const dataFinal = new Date(`${mesesdoAno + 1}-01`);
+
+      // Define a data de atualização do cartão no intervalo do mês fornecido
+      query.dataAtualizacaoCartao = {
+        $gte: new Date(`${mesesdoAno}-${dateAtualizacao}`),
+        $lt: new Date(`${mesesdoAno + 1}-${dateAtualizacao}`),
+      };
+
+      // Adiciona a condição para a data da transação estar dentro do intervalo do mês
+      query.dataTransacao = {
+        $gte: dataInicial,
+        $lt: dataFinal,
+      };
+    }
+  }
+
+  if (mesesdoAno) {
+    query.mesesdoAno = mesesdoAno;
+  }
+
+  transacoesEncontradas = await CartaoCreditoTransaction.find(query);
+
+  return transacoesEncontradas;
+  // return transacoesEncontradas;
+}
+
 const resumoTransactions = async (objTransaction) => {
   let transacoesEncontradas,
     saidas = 0,
@@ -157,9 +215,10 @@ const resumoTransactions = async (objTransaction) => {
 
 module.exports = {
   createTransaction,
-  searchTransaction,
-  searchTransactions,
+  readTransaction,
+  readTransactions,
   updateTransaction,
   deleteTransaction,
+  searchTransactions,
   resumoTransactions,
 };
