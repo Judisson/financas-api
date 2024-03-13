@@ -5,6 +5,7 @@ const cartaoSchema = new mongoose.Schema({
   bandeira: String,
   banco: String,
   numeroCartao: String,
+  dateAtualizacao: Number,
 })
 
 const Cartao = mongoose.model('cartaoCredito', cartaoSchema);

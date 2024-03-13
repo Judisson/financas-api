@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const cartaoCreditoSchema = new mongoose.Schema({
   idTransacao: { type: Number, unique: true, required: true },
@@ -8,12 +8,16 @@ const cartaoCreditoSchema = new mongoose.Schema({
   date: Date,
   horaTransacao: String,
   valor: Number,
-  formaPagamento: String,
   tipoValor: String,
+  cartaoCredito: Number,
   statusTransacao: String,
-  produtos: [{ nomeProduto: String, valorProduto: Number}]
-})
+  parcelas: [{ date: Date, valor: Number }],
+  produtos: [{ nomeProduto: String, valorProduto: Number }],
+});
 
-const CartaoCreditoTransaction = mongoose.model('cartaoCreditoTransactions', cartaoCreditoSchema);
+const CartaoCreditoTransaction = mongoose.model(
+  'cartaoCreditoTransactions',
+  cartaoCreditoSchema
+);
 
-module.exports = CartaoCreditoTransaction
+module.exports = CartaoCreditoTransaction;

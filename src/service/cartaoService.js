@@ -6,6 +6,7 @@ const createCartao = async (objCartao) => {
     bandeira,
     banco,
     numeroCartao,
+    dateAtualizacao,
   } = objCartao;
   let newCartao;
 
@@ -20,6 +21,7 @@ const createCartao = async (objCartao) => {
     bandeira,
     banco,
     numeroCartao,
+    dateAtualizacao,
   });
 
   console.log('objeto inteiro', newCartao);
