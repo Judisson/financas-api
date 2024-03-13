@@ -4,10 +4,11 @@ const controllerCard = require('../controllers/cartao.controller');
 const router = express.Router();
 
 router.post('/transaction/create', controller.Create)
-router.get('/transaction/list', controller.SearchList)
-router.get('/transaction/search', controller.Search)
+router.get('/transaction/readlist', controller.ReadList)
+router.get('/transaction/read', controller.Read)
 router.put('/transaction/update', controller.Update)
 router.delete('/transaction/delete', controller.Delete)
+router.post('/transaction/search', controller.Search)
 router.get('/transactions/resumo', controller.Resumo)
 
 router.post('/create', controllerCard.Create)
