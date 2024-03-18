@@ -9,9 +9,11 @@ const cartaoCreditoSchema = new mongoose.Schema({
   horaTransacao: String,
   valor: Number,
   tipoValor: String,
+  juros: Number,
   cartaoCredito: Number,
+  quantidadeParcelas: Number,
   statusTransacao: String,
-  parcelas: [{ date: Date, valor: Number, numeroParcela: Number, statusParcela: String }],
+  parcelas: [{ dataParcela: Date, valorParcela: Number, numeroParcela: Number, statusParcela: String }],
   produtos: [{ nomeProduto: String, valorProduto: Number }],
 });
 

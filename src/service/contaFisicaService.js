@@ -126,7 +126,10 @@ const resumoTransactions = async (objTransaction) => {
   let transacoesEncontradas,
     saidas = 0,
     entradas = 0,
-    total = 0;
+    total = 0
+    previsao = 0;
+    entradaTotal = 0,
+    saidaTotal = 0;
 
   try {
     transacoesEncontradas = await ContaFisicaTransaction.find();
@@ -134,16 +137,26 @@ const resumoTransactions = async (objTransaction) => {
     
 
     total = transacoesEncontradas.forEach((transacao) => {
-      if (transacao.tipoValor === 'Entrada') {
+      if (transacao.tipoValor === 'Entrada' & transacao.statusTransacao === 'Recebido') {
         entradas += transacao.valor;
-      } else if (transacao.tipoValor === 'Saída') {
+      } else if (transacao.tipoValor === 'Saída' & transacao.statusTransacao === 'Pago') {
         saidas += transacao.valor;
       }
     });
 
+    previsao = transacoesEncontradas.forEach((transacao) => {
+      if (transacao.tipoValor === 'Entrada') {
+        entradaTotal += transacao.valor;
+      } else if (transacao.tipoValor === 'Saída') {
+        saidaTotal += transacao.valor;
+      }
+    });
+
     total = entradas - saidas;
+    previsao = entradaTotal - saidaTotal;
 
     return {
+      previsao: Number(previsao).toFixed(2),
       total: Number(total).toFixed(2),
       entradas: Number(entradas).toFixed(2),
       saidas: Number(saidas).toFixed(2),

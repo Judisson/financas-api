@@ -11,6 +11,7 @@ const createTransaction = async (objTransaction) => {
   horaTransacao,
   valor,
   cartaoCredito,
+  quantidadeParcelas,
   juros,
   parcelas,
   produtos,
@@ -32,6 +33,7 @@ const createTransaction = async (objTransaction) => {
   horaTransacao,
   valor,
   cartaoCredito,
+  quantidadeParcelas,
   juros,
   parcelas,
   produtos,
@@ -123,58 +125,135 @@ const deleteTransaction = async (objTransaction) => {
   }
 };
 
+// const searchTransactions = async (objPesquisa) => {
+//   console.log('objPesquisa', objPesquisa);
+//   let { estabelecimento, cartaoCredito, mesesdoAno } = objPesquisa;
+//   let transacoesEncontradas;
+//   let query = {};
+
+//   if (estabelecimento) {
+//     query.estabelecimento = estabelecimento;
+//   }
+
+//   if (cartaoCredito) {
+//     query.cartaoCredito = cartaoCredito;
+
+//     const cartao = await Cartao.findById(cartaoCredito);
+//     if (cartao && mesesdoAno !== undefined) {
+//       const dateAtualizacao = cartao.dateAtualizacao;
+
+//       // Obtém o primeiro dia do mês atual e o primeiro dia do próximo mês
+//       // const primeiroDiaAtual = new Date();
+//       // primeiroDiaAtual.setDate(1);
+
+//       // const primeiroDiaProximoMes = new Date();
+//       // primeiroDiaProximoMes.setMonth(primeiroDiaProximoMes.getMonth() + 1);
+//       // primeiroDiaProximoMes.setDate(1);
+
+//       // // Configura a consulta para o intervalo entre o dia de atualização e o próximo mês
+//       // query.data = {
+//       //   $gte: new Date(primeiroDiaAtual.getFullYear(), mesesdoAno, dateAtualizacao),
+//       //   $lt: new Date(primeiroDiaProximoMes.getFullYear(), primeiroDiaProximoMes.getMonth(), dateAtualizacao),
+//       // };
+
+//       const dataInicial = new Date(`${mesesdoAno}-01`);
+//       const dataFinal = new Date(`${mesesdoAno + 1}-01`);
+
+//       // Define a data de atualização do cartão no intervalo do mês fornecido
+//       query.dataAtualizacaoCartao = {
+//         $gte: new Date(`${mesesdoAno}-${dateAtualizacao}`),
+//         $lt: new Date(`${mesesdoAno + 1}-${dateAtualizacao}`),
+//       };
+
+//       // Adiciona a condição para a data da transação estar dentro do intervalo do mês
+//       query.dataTransacao = {
+//         $gte: dataInicial,
+//         $lt: dataFinal,
+//       };
+//     }
+//   }
+
+//   if (mesesdoAno) {
+//     query.mesesdoAno = mesesdoAno;
+//   }
+
+//   transacoesEncontradas = await CartaoCreditoTransaction.find(query);
+
+//   return transacoesEncontradas;
+//   // return transacoesEncontradas;
+// }
+
 const searchTransactions = async (objPesquisa) => {
-  let { estabelecimento, cartaoCredito, mesesdoAno } = objPesquisa;
+  console.log('objPesquisa', objPesquisa);
+  let { dataSearch } = objPesquisa;
+  let { estabelecimento, cartaoCredito, mesesdoAno } = dataSearch;
   let transacoesEncontradas;
   let query = {};
 
-  if (estabelecimento) {
-    query.estabelecimento = estabelecimento;
-  }
+  // if (estabelecimento) {
+  //   query.estabelecimento = estabelecimento;
+  // }
 
   if (cartaoCredito) {
     query.cartaoCredito = cartaoCredito;
 
-    const cartao = await Cartao.findById(cartaoCredito);
+    const cartao = await Cartao.find({numeroCartao: cartaoCredito});
+    console.log('cartao', cartao);
     if (cartao && mesesdoAno !== undefined) {
       const dateAtualizacao = cartao.dateAtualizacao;
 
-      // Obtém o primeiro dia do mês atual e o primeiro dia do próximo mês
-      // const primeiroDiaAtual = new Date();
-      // primeiroDiaAtual.setDate(1);
+      const dataInicial = new Date(`2024-${mesesdoAno}-01`);
+      const dataFinal = new Date(`2024-${mesesdoAno + 1}-01`);
 
-      // const primeiroDiaProximoMes = new Date();
-      // primeiroDiaProximoMes.setMonth(primeiroDiaProximoMes.getMonth() + 1);
-      // primeiroDiaProximoMes.setDate(1);
+      console.log('dataInicial', dataInicial);
+      console.log('dataFinal', dataFinal);
 
-      // // Configura a consulta para o intervalo entre o dia de atualização e o próximo mês
-      // query.data = {
-      //   $gte: new Date(primeiroDiaAtual.getFullYear(), mesesdoAno, dateAtualizacao),
-      //   $lt: new Date(primeiroDiaProximoMes.getFullYear(), primeiroDiaProximoMes.getMonth(), dateAtualizacao),
-      // };
-
-      const dataInicial = new Date(`${mesesdoAno}-01`);
-      const dataFinal = new Date(`${mesesdoAno + 1}-01`);
+      transacoesEncontradas = await CartaoCreditoTransaction.aggregate([
+        {
+          $unwind: "$parcelas" // Desconstruir o array 'parcelas'
+        },
+        {
+          $match: {
+            "parcelas.dataParcela": {
+              $gte: new Date(`2024-${mesesdoAno}-01`),
+              $lt: new Date(`2024-${mesesdoAno + 1}-01`)
+            }
+          }
+        },
+        {
+          $group: {
+            _id: "$_id", // Agrupando pelo ID original do documento
+            // Manter todos os campos do documento original
+            doc: { $first: "$$ROOT" }
+          }
+        },
+        {
+          $replaceRoot: { newRoot: "$doc" } // Promover o documento agrupado para o nível superior
+        }
+      ])
 
       // Define a data de atualização do cartão no intervalo do mês fornecido
-      query.dataAtualizacaoCartao = {
-        $gte: new Date(`${mesesdoAno}-${dateAtualizacao}`),
-        $lt: new Date(`${mesesdoAno + 1}-${dateAtualizacao}`),
-      };
+      // query.date = {
+      //   $gte: new Date(`2024-${mesesdoAno}-01`),
+      //   $lt: new Date(`2024-${mesesdoAno + 1}-01`),
+      // };
 
       // Adiciona a condição para a data da transação estar dentro do intervalo do mês
-      query.dataTransacao = {
-        $gte: dataInicial,
-        $lt: dataFinal,
-      };
+      // query.date = {
+      //   $gte: dataInicial,
+      //   $lt: dataFinal,
+      // };
     }
   }
 
-  if (mesesdoAno) {
-    query.mesesdoAno = mesesdoAno;
-  }
+  // if (mesesdoAno) {
+  //   query.mesesdoAno = mesesdoAno;
+  // }
 
-  transacoesEncontradas = await CartaoCreditoTransaction.find(query);
+  
+
+  // transacoesEncontradas = await CartaoCreditoTransaction.find(query);
+  console.log('transacoesEncontradas', transacoesEncontradas);
 
   return transacoesEncontradas;
   // return transacoesEncontradas;
