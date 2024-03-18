@@ -5,6 +5,7 @@ const cartaoSchema = new mongoose.Schema({
   bandeira: String,
   banco: String,
   numeroCartao: Number,
+  limiteCartao: Number,
   dateAtualizacao: Number,
 })
 

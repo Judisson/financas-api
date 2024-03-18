@@ -6,6 +6,7 @@ const createCartao = async (objCartao) => {
     bandeira,
     banco,
     numeroCartao,
+    limiteCartao,
     dateAtualizacao,
   } = objCartao;
   let newCartao;
@@ -21,6 +22,7 @@ const createCartao = async (objCartao) => {
     bandeira,
     banco,
     numeroCartao,
+    limiteCartao,
     dateAtualizacao,
   });
 
@@ -111,9 +113,9 @@ const deleteCartao = async (objCartao) => {
 };
 
 module.exports = {
-  createCartao: createCartao,
-  searchCartao: searchCartao,
-  searchCartoes: searchCartoes,
-  updateCartao: updateCartao,
-  deleteCartao: deleteCartao,
+  createCartao,
+  searchCartao,
+  searchCartoes,
+  updateCartao,
+  deleteCartao,
 };
