@@ -243,118 +243,47 @@ const searchTransactions = async (objPesquisa) => {
 }
 
 const resumoTransactions = async (objTransaction) => {
-  let transacoesEncontradas, transacoesFuturas,
-    saidas = 0,
-    limite = 0,
-    total = 0;
-
-    
+  let transacoesEncontradas, limiteUsado = 0;
 
   try {
-    // transacoesEncontradas = await CartaoCreditoTransaction.find();
     cartoesEncontrados = await Cartao.find();
 
     const resumos = await Promise.all(cartoesEncontrados.map(async (cartao) => {
       const dataMes = new Date();
-      // console.log('mes de hoje', dataMes.getMonth() + 1)
 
       transacoesEncontradas = await CartaoCreditoTransaction.aggregate([
-        // {
-        //   $unwind: "$parcelas" // Desconstruir o array 'parcelas'
-        // },
+        //somente com esse comentário que a função funciona
         {
           $match: {
             cartaoCredito: cartao.numeroCartao,
             "parcelas.dataParcela": {
               $gte: new Date(`2024-${dataMes.getMonth() + 1}-${cartao.dateAtualizacao}`)
-              // $lt: new Date(`2024-${dataMes.getMonth() + 2}-${cartao.dateAtualizacao}`)
             },
             "parcelas.statusParcela": "Agendado"
-            // "parcelas.dataParcela": {
-            //   $gte: new Date(`2024-03-01`),
-            //   $lt: new Date(`2024-4-01`)
-            // }
           }
         },
         {
           $group: {
-            _id: "$_id", // Agrupando pelo ID original do documento
-            // Manter todos os campos do documento original
+            _id: "$_id",
             doc: { $first: "$$ROOT" }
           }
         },
         {
-          $replaceRoot: { newRoot: "$doc" } // Promover o documento agrupado para o nível superior
+          $replaceRoot: { newRoot: "$doc" }
         }
       ])
-      // transacoesFuturas = await CartaoCreditoTransaction.aggregate([
-      //   {
-      //     $unwind: "$parcelas" // Desconstruir o array 'parcelas'
-      //   },
-      //   {
-      //     $match: {
-      //       cartaoCredito: cartao.numeroCartao,
-      //       "parcelas.dataParcela": {
-      //         $gte: new Date(`2024-${dataMes.getMonth() + 2}-${cartao.dateAtualizacao}`),
-      //         // $lt: new Date(`2024-${dataMes.getMonth() + 2}-${cartao.dateAtualizacao}`)
-      //       },
-      //       "parcelas.statusParcela": "Agendado"
-      //       // "parcelas.dataParcela": {
-      //       //   $gte: new Date(`2024-03-01`),
-      //       //   $lt: new Date(`2024-4-01`)
-      //       // }
-      //     }
-      //   },
-      //   {
-      //     $group: {
-      //       _id: "$_id", // Agrupando pelo ID original do documento
-      //       // Manter todos os campos do documento original
-      //       doc: { $first: "$$ROOT" }
-      //     }
-      //   },
-      //   {
-      //     $replaceRoot: { newRoot: "$doc" } // Promover o documento agrupado para o nível superior
-      //   }
-      // ])
-
-      console.log('transacoesEncontradas', transacoesEncontradas);
-
-      // const transacoesMesPassado = await searchTransactions({ dataSearch: { cartaoCredito: cartao.numeroCartao, mesesdoAno: new Date().getMonth() - 1 } });
-      // const transacoesMesVigente = await searchTransactions({ dataSearch: { cartaoCredito: cartao.numeroCartao, mesesdoAno: new Date().getMonth() } });
-      // const transacoesMesFuturo = await searchTransactions({ dataSearch: { cartaoCredito: cartao.numeroCartao, mesesdoAno: new Date().getMonth() + 1 } });
-      
-      let limiteUsado = 0;
-      // transacoesMesPassado.forEach(transacao => limiteUsado += transacao.valor);
-      // transacoesMesVigente.forEach(transacao => limiteUsado += transacao.valor);
-      // transacoesMesFuturo.forEach(transacao => limiteUsado += transacao.valor);
-
-      // transacoesEncontradas.forEach(transacao => limiteUsado += transacao.valor);
-      // transacoesEncontradas.forEach(transacao => transacao.parcelas.forEach(parcela => limiteUsado += parcela.valorParcela));
-      // transacoesFuturas.forEach(transacao => transacao.parcelas.forEach(parcela => limiteUsado += parcela.valorParcela));
-
-      // if (transacoesEncontradas && transacoesEncontradas.length > 0) {
-      //   console.log('entrou transacoesEncontradas');
-      //   transacoesEncontradas.forEach(transacao => transacao.parcelas.forEach(parcela => limiteUsado += parcela.valorParcela));
-      // }
 
       if (transacoesEncontradas && transacoesEncontradas.length > 0) {
-        console.log('entrou transacoesEncontradas');
         transacoesEncontradas.forEach(transacao => {
           if (transacao.parcelas) {
-            console.log('entrou transacao.parcelas');
             if (Array.isArray(transacao.parcelas)) {
-              console.log('entrou parcela Array');
               transacao.parcelas.forEach(parcela => limiteUsado += parcela.valorParcela);
             } else {
-              console.log('entrou sem ser array');
-              // Se transacao.parcelas não for um array, considera-se uma única parcela
               limiteUsado += transacao.parcelas.valorParcela;
             }
           }
         });
       }
-
-      // console.log('transacoesFuturas', transacoesFuturas);
 
       const limiteDisponivel = cartao.limiteCartao - limiteUsado;
 
@@ -363,25 +292,17 @@ const resumoTransactions = async (objTransaction) => {
         limiteCartao: cartao.limiteCartao,
         limiteUsado,
         limiteDisponivel,
-        // Outras informações que você queira incluir no resumo
       };
 
       return resumoCartao;
     }))
 
-
-
-    // console.log('cartoesEncontrados', cartoesEncontrados);
-
-    
-    // return 1 + 1
     return resumos;
 
   } catch (error) {
     console.error('Erro ao resumir transações:', error);
-    throw error; // Relança o erro para ser tratado onde a função é chamada
+    throw error;
   }
-  // return res.status(200).json(transacoesEncontradas);
 };
 
 module.exports = {
