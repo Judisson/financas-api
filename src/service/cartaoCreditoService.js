@@ -184,29 +184,30 @@ const deleteTransaction = async (objTransaction) => {
 // }
 
 const searchTransactions = async (objPesquisa) => {
-  console.log('objPesquisa', objPesquisa);
+  // console.log('objPesquisa', objPesquisa);
   let { dataSearch } = objPesquisa;
   let { estabelecimento, cartaoCredito, mesesdoAno } = dataSearch;
   let transacoesEncontradas;
-  let query = {};
+  // let query = {};
 
   // if (estabelecimento) {
   //   query.estabelecimento = estabelecimento;
   // }
 
   if (cartaoCredito) {
-    query.cartaoCredito = cartaoCredito;
+    // query.cartaoCredito = cartaoCredito;
 
-    const cartao = await Cartao.find({numeroCartao: cartaoCredito});
-    console.log('cartao', cartao);
+    const cartao = await Cartao.findOne({numeroCartao: cartaoCredito});
+    // console.log('cartao', cartao);
     if (cartao && mesesdoAno !== undefined) {
       const dateAtualizacao = cartao.dateAtualizacao;
 
       const dataInicial = new Date(`2024-${mesesdoAno}-01`);
       const dataFinal = new Date(`2024-${mesesdoAno + 1}-01`);
 
-      console.log('dataInicial', dataInicial);
-      console.log('dataFinal', dataFinal);
+      // console.log('dataInicial', dataInicial);
+      console.log('cartao.dateAtualizacao', cartao);
+      console.log('cartao.dateAtualizacao', cartao.dateAtualizacao);
 
       transacoesEncontradas = await CartaoCreditoTransaction.aggregate([
         {
@@ -215,8 +216,8 @@ const searchTransactions = async (objPesquisa) => {
         {
           $match: {
             "parcelas.dataParcela": {
-              $gte: new Date(`2024-${mesesdoAno}-01`),
-              $lt: new Date(`2024-${mesesdoAno + 1}-01`)
+              $gte: new Date(`2024-${mesesdoAno}-${cartao.dateAtualizacao}`),
+              $lt: new Date(`2024-${mesesdoAno + 1}-${cartao.dateAtualizacao}`)
             }
           }
         },
@@ -231,60 +232,151 @@ const searchTransactions = async (objPesquisa) => {
           $replaceRoot: { newRoot: "$doc" } // Promover o documento agrupado para o nível superior
         }
       ])
-
-      // Define a data de atualização do cartão no intervalo do mês fornecido
-      // query.date = {
-      //   $gte: new Date(`2024-${mesesdoAno}-01`),
-      //   $lt: new Date(`2024-${mesesdoAno + 1}-01`),
-      // };
-
-      // Adiciona a condição para a data da transação estar dentro do intervalo do mês
-      // query.date = {
-      //   $gte: dataInicial,
-      //   $lt: dataFinal,
-      // };
     }
-  }
-
-  // if (mesesdoAno) {
-  //   query.mesesdoAno = mesesdoAno;
-  // }
-
-  
+    // console.log('transacoesEncontradas', transacoesEncontradas);
+  }  
 
   // transacoesEncontradas = await CartaoCreditoTransaction.find(query);
-  console.log('transacoesEncontradas', transacoesEncontradas);
 
   return transacoesEncontradas;
   // return transacoesEncontradas;
 }
 
 const resumoTransactions = async (objTransaction) => {
-  let transacoesEncontradas,
+  let transacoesEncontradas, transacoesFuturas,
     saidas = 0,
-    entradas = 0,
+    limite = 0,
     total = 0;
-
-  try {
-    transacoesEncontradas = await CartaoCreditoTransaction.find();
 
     
 
-    total = transacoesEncontradas.forEach((transacao) => {
-      if (transacao.tipoValor === 'Entrada') {
-        entradas += transacao.valor;
-      } else if (transacao.tipoValor === 'Saída') {
-        saidas += transacao.valor;
+  try {
+    // transacoesEncontradas = await CartaoCreditoTransaction.find();
+    cartoesEncontrados = await Cartao.find();
+
+    const resumos = await Promise.all(cartoesEncontrados.map(async (cartao) => {
+      const dataMes = new Date();
+      // console.log('mes de hoje', dataMes.getMonth() + 1)
+
+      transacoesEncontradas = await CartaoCreditoTransaction.aggregate([
+        // {
+        //   $unwind: "$parcelas" // Desconstruir o array 'parcelas'
+        // },
+        {
+          $match: {
+            cartaoCredito: cartao.numeroCartao,
+            "parcelas.dataParcela": {
+              $gte: new Date(`2024-${dataMes.getMonth() + 1}-${cartao.dateAtualizacao}`)
+              // $lt: new Date(`2024-${dataMes.getMonth() + 2}-${cartao.dateAtualizacao}`)
+            },
+            "parcelas.statusParcela": "Agendado"
+            // "parcelas.dataParcela": {
+            //   $gte: new Date(`2024-03-01`),
+            //   $lt: new Date(`2024-4-01`)
+            // }
+          }
+        },
+        {
+          $group: {
+            _id: "$_id", // Agrupando pelo ID original do documento
+            // Manter todos os campos do documento original
+            doc: { $first: "$$ROOT" }
+          }
+        },
+        {
+          $replaceRoot: { newRoot: "$doc" } // Promover o documento agrupado para o nível superior
+        }
+      ])
+      // transacoesFuturas = await CartaoCreditoTransaction.aggregate([
+      //   {
+      //     $unwind: "$parcelas" // Desconstruir o array 'parcelas'
+      //   },
+      //   {
+      //     $match: {
+      //       cartaoCredito: cartao.numeroCartao,
+      //       "parcelas.dataParcela": {
+      //         $gte: new Date(`2024-${dataMes.getMonth() + 2}-${cartao.dateAtualizacao}`),
+      //         // $lt: new Date(`2024-${dataMes.getMonth() + 2}-${cartao.dateAtualizacao}`)
+      //       },
+      //       "parcelas.statusParcela": "Agendado"
+      //       // "parcelas.dataParcela": {
+      //       //   $gte: new Date(`2024-03-01`),
+      //       //   $lt: new Date(`2024-4-01`)
+      //       // }
+      //     }
+      //   },
+      //   {
+      //     $group: {
+      //       _id: "$_id", // Agrupando pelo ID original do documento
+      //       // Manter todos os campos do documento original
+      //       doc: { $first: "$$ROOT" }
+      //     }
+      //   },
+      //   {
+      //     $replaceRoot: { newRoot: "$doc" } // Promover o documento agrupado para o nível superior
+      //   }
+      // ])
+
+      console.log('transacoesEncontradas', transacoesEncontradas);
+
+      // const transacoesMesPassado = await searchTransactions({ dataSearch: { cartaoCredito: cartao.numeroCartao, mesesdoAno: new Date().getMonth() - 1 } });
+      // const transacoesMesVigente = await searchTransactions({ dataSearch: { cartaoCredito: cartao.numeroCartao, mesesdoAno: new Date().getMonth() } });
+      // const transacoesMesFuturo = await searchTransactions({ dataSearch: { cartaoCredito: cartao.numeroCartao, mesesdoAno: new Date().getMonth() + 1 } });
+      
+      let limiteUsado = 0;
+      // transacoesMesPassado.forEach(transacao => limiteUsado += transacao.valor);
+      // transacoesMesVigente.forEach(transacao => limiteUsado += transacao.valor);
+      // transacoesMesFuturo.forEach(transacao => limiteUsado += transacao.valor);
+
+      // transacoesEncontradas.forEach(transacao => limiteUsado += transacao.valor);
+      // transacoesEncontradas.forEach(transacao => transacao.parcelas.forEach(parcela => limiteUsado += parcela.valorParcela));
+      // transacoesFuturas.forEach(transacao => transacao.parcelas.forEach(parcela => limiteUsado += parcela.valorParcela));
+
+      // if (transacoesEncontradas && transacoesEncontradas.length > 0) {
+      //   console.log('entrou transacoesEncontradas');
+      //   transacoesEncontradas.forEach(transacao => transacao.parcelas.forEach(parcela => limiteUsado += parcela.valorParcela));
+      // }
+
+      if (transacoesEncontradas && transacoesEncontradas.length > 0) {
+        console.log('entrou transacoesEncontradas');
+        transacoesEncontradas.forEach(transacao => {
+          if (transacao.parcelas) {
+            console.log('entrou transacao.parcelas');
+            if (Array.isArray(transacao.parcelas)) {
+              console.log('entrou parcela Array');
+              transacao.parcelas.forEach(parcela => limiteUsado += parcela.valorParcela);
+            } else {
+              console.log('entrou sem ser array');
+              // Se transacao.parcelas não for um array, considera-se uma única parcela
+              limiteUsado += transacao.parcelas.valorParcela;
+            }
+          }
+        });
       }
-    });
 
-    total = entradas - saidas;
+      // console.log('transacoesFuturas', transacoesFuturas);
 
-    return {
-      total: Number(total).toFixed(2),
-      entradas: Number(entradas).toFixed(2),
-      saidas: Number(saidas).toFixed(2),
-    };
+      const limiteDisponivel = cartao.limiteCartao - limiteUsado;
+
+      const resumoCartao = {
+        numeroCartao: cartao.numeroCartao,
+        limiteCartao: cartao.limiteCartao,
+        limiteUsado,
+        limiteDisponivel,
+        // Outras informações que você queira incluir no resumo
+      };
+
+      return resumoCartao;
+    }))
+
+
+
+    // console.log('cartoesEncontrados', cartoesEncontrados);
+
+    
+    // return 1 + 1
+    return resumos;
+
   } catch (error) {
     console.error('Erro ao resumir transações:', error);
     throw error; // Relança o erro para ser tratado onde a função é chamada
