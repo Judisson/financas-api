@@ -243,7 +243,7 @@ const searchTransactions = async (objPesquisa) => {
 }
 
 const resumoTransactions = async (objTransaction) => {
-  let transacoesEncontradas, limiteUsado = 0;
+  let transacoesEncontradas;
 
   try {
     cartoesEncontrados = await Cartao.find();
@@ -252,7 +252,6 @@ const resumoTransactions = async (objTransaction) => {
       const dataMes = new Date();
 
       transacoesEncontradas = await CartaoCreditoTransaction.aggregate([
-        //somente com esse comentário que a função funciona
         {
           $match: {
             cartaoCredito: cartao.numeroCartao,
@@ -272,7 +271,9 @@ const resumoTransactions = async (objTransaction) => {
           $replaceRoot: { newRoot: "$doc" }
         }
       ])
+      // console.log('transacoesEncontradas: ', transacoesEncontradas);
 
+      let limiteUsado = 0;
       if (transacoesEncontradas && transacoesEncontradas.length > 0) {
         transacoesEncontradas.forEach(transacao => {
           if (transacao.parcelas) {
@@ -285,11 +286,13 @@ const resumoTransactions = async (objTransaction) => {
         });
       }
 
-      const limiteDisponivel = cartao.limiteCartao - limiteUsado;
+      const limiteDisponivel = cartao.limiteCartao - parseFloat(limiteUsado.toFixed(2));
 
       const resumoCartao = {
         numeroCartao: cartao.numeroCartao,
         limiteCartao: cartao.limiteCartao,
+        banco: cartao.banco,
+        bandeira: cartao.bandeira,
         limiteUsado,
         limiteDisponivel,
       };
