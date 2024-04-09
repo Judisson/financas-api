@@ -255,36 +255,52 @@ const resumoTransactions = async (objTransaction) => {
         {
           $match: {
             cartaoCredito: cartao.numeroCartao,
+          }
+        },
+        {
+          $unwind: "$parcelas" // Desenrolar o array de parcelas
+        },
+        {
+          $match: {
             "parcelas.dataParcela": {
               $gte: new Date(`2024-${dataMes.getMonth() + 1}-${cartao.dateAtualizacao}`)
             },
-            "parcelas.statusParcela": "Agendado"
+            "parcelas.statusParcela": "Agendado" // Filtrar somente as parcelas com status "Pago"
           }
         },
         {
           $group: {
             _id: "$_id",
-            doc: { $first: "$$ROOT" }
+            // doc: { $first: "$$ROOT" },
+            date: { $first: "$date" },
+            parcelas: { $push: "$parcelas" }
           }
         },
-        {
-          $replaceRoot: { newRoot: "$doc" }
-        }
+        // {
+        //   $replaceRoot: { newRoot: "$doc" }
+        // }
       ])
-      // console.log('transacoesEncontradas: ', transacoesEncontradas);
+      console.log('transacoesEncontradas: ', transacoesEncontradas);
 
       let limiteUsado = 0;
       if (transacoesEncontradas && transacoesEncontradas.length > 0) {
         transacoesEncontradas.forEach(transacao => {
-          if (transacao.parcelas) {
-            if (Array.isArray(transacao.parcelas)) {
+            // console.log("transacao.parcelas: ", transacao.parcelas)
+            // console.log("entrou 1 ")
+            // transacao.doc.parcelas.forEach(parcela => limiteUsado += parcela.valorParcela);
+            if (transacao.parcelas && transacao.parcelas.length > 0) {
+              // console.log("entrou 2")
               transacao.parcelas.forEach(parcela => limiteUsado += parcela.valorParcela);
             } else {
+              // console.log("entrou 3")
               limiteUsado += transacao.parcelas.valorParcela;
             }
-          }
         });
       }
+
+      // console.log("cartao.limiteCartao: ", cartao.limiteCartao)
+      // console.log("limiteUsado: ", limiteUsado)
+      // console.log("transacoesEncontradas: ", transacoesEncontradas)
 
       const limiteDisponivel = cartao.limiteCartao - parseFloat(limiteUsado.toFixed(2));
 
@@ -293,7 +309,7 @@ const resumoTransactions = async (objTransaction) => {
         limiteCartao: cartao.limiteCartao,
         banco: cartao.banco,
         bandeira: cartao.bandeira,
-        limiteUsado,
+        limiteUsado: Number(limiteUsado).toFixed(2),
         limiteDisponivel,
       };
 

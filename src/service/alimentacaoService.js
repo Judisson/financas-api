@@ -136,7 +136,6 @@ const resumoTransactions = async (objTransaction) => {
       if (transacao.tipoValor === 'Entrada' & transacao.statusTransacao === 'Recebido') {
         entradas += transacao.valor;
       } else if (transacao.tipoValor === 'Saída' & transacao.statusTransacao === 'Pago') {
-        console.log('ransacao.tipoValor', transacao.tipoValor);
         saidas += transacao.valor;
       }
     });
