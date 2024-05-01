@@ -206,10 +206,14 @@ const searchTransactions = async (objPesquisa) => {
       const dataFinal = new Date(`2024-${mesesdoAno + 1}-01`);
 
       // console.log('dataInicial', dataInicial);
-      console.log('cartao.dateAtualizacao', cartao);
-      console.log('cartao.dateAtualizacao', cartao.dateAtualizacao);
+      console.log('cartao.dateAtualizacao', cartao.numeroCartao);
 
       transacoesEncontradas = await CartaoCreditoTransaction.aggregate([
+        {
+          $match: {
+            "cartaoCredito": cartao.numeroCartao,
+          }
+        },
         {
           $unwind: "$parcelas" // Desconstruir o array 'parcelas'
         },
@@ -233,7 +237,7 @@ const searchTransactions = async (objPesquisa) => {
         }
       ])
     }
-    // console.log('transacoesEncontradas', transacoesEncontradas);
+    console.log('transacoesEncontradas: ', transacoesEncontradas);
   }  
 
   // transacoesEncontradas = await CartaoCreditoTransaction.find(query);
