@@ -1,4 +1,4 @@
-const { createTransaction, searchTransaction, searchTransactions, updateTransaction, deleteTransaction, resumoTransactions } = require('../service/alimentacaoService')
+const { createTransaction, readTransaction, readTransactions, searchTransactions, updateTransaction, deleteTransaction, resumoTransactions } = require('../service/alimentacaoService')
 
 exports.Create = async (req, res) => {
   const data = await createTransaction(
@@ -7,15 +7,15 @@ exports.Create = async (req, res) => {
   return res.status(200).json(data)
 }
 
-exports.Search = async (req, res) => {
-  const data = await searchTransaction(
+exports.Read = async (req, res) => {
+  const data = await readTransaction(
     req.query || []
   )
   return res.status(200).json(data)
 }
 
-exports.SearchList = async (req, res) => {
-  const data = await searchTransactions(
+exports.ReadList = async (req, res) => {
+  const data = await readTransactions(
     req.body || []
   )
   return res.status(200).json(data)
@@ -31,6 +31,13 @@ exports.Update = async (req, res) => {
 
 exports.Delete = async (req, res) => {
   const data = await deleteTransaction(
+    req.body || []
+  )
+  return res.status(200).json(data)
+}
+
+exports.Search = async (req, res) => {
+  const data = await searchTransactions(
     req.body || []
   )
   return res.status(200).json(data)

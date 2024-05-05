@@ -1,5 +1,6 @@
 const dotenv = require('dotenv').config();
 const AlimentacaoTransaction = require('../db/models/alimentacaotransaction.model');
+const ConfiguracoesGerais = require('../db/models/configuracoes.model');
 
 const createTransaction = async (objTransaction) => {
   let {
@@ -49,7 +50,7 @@ const createTransaction = async (objTransaction) => {
   return newTransaction;
 };
 
-const searchTransaction = async (objTransaction) => {
+const readTransaction = async (objTransaction) => {
   let { idTransacao, tipoTransacao } = objTransaction;
   let transacaoEncontrada;
 
@@ -68,7 +69,7 @@ const searchTransaction = async (objTransaction) => {
   // });
 };
 
-const searchTransactions = async (objTransaction) => {
+const readTransactions = async (objTransaction) => {
   let { tipoTransacao } = objTransaction;
   let transacoesEncontradas;
 
@@ -120,7 +121,62 @@ const deleteTransaction = async (objTransaction) => {
   }
 };
 
+const searchTransactions = async (objTransaction) => {
+  const { dateMes } = objTransaction;
+  let transacoesEncontradas;
+  let diaResetConta;
+
+  let dategte = dateMes;
+  let datelt = dateMes + 1;
+
+  try {
+    diaResetConta = await ConfiguracoesGerais.findOne({ idConfiguracoes: 1 })
+  } catch (error) {
+    console.error('Erro ao achar Configuração!');
+    // console.error("Log do Erro: ", error);
+    throw error;
+  };
+
+  transacoesEncontradas = await AlimentacaoTransaction.aggregate([
+    {
+      $match: {
+        "date": {
+          $gte: new Date(`2024-${dategte}-${diaResetConta.date.getDate() }`),
+          $lt: new Date(`2024-${datelt}-${diaResetConta.date.getDate()}`)
+        }, // Filtrar somente as parcelas com status "Pago"
+      }
+    },
+    {
+      $group: {
+        _id: "$_id", // Agrupando pelo ID original do documento
+        // Manter todos os campos do documento original
+        doc: { $first: "$$ROOT" }
+      }
+      // $group: {
+      //   _id: "$_id",
+      //   estabelecimento: String,
+      //   // doc: { $first: "$$ROOT" },
+      //   categoriaEstabelecimento: String,
+      //   subCategoria: String,
+      //   date: { $first: "$date" },
+      //   horaTransacao: String,
+      //   valor: { $first: "$valor" },
+      //   formaPagamento: String,
+      //   tipoValor: { $first: "$tipoValor" },
+      //   statusTransacao: { $first: "$statusTransacao" },
+      //   produtos: [{ nomeProduto: String, valorProduto: Number}]
+      // }
+    },
+    {
+      $replaceRoot: { newRoot: "$doc" } // Promover o documento agrupado para o nível superior
+    },
+  ]);
+
+  return transacoesEncontradas;
+};
+
 const resumoTransactions = async (objTransaction) => {
+  const { dateMes } = objTransaction;
   let transacoesEncontradas,
     saidas = 0,
     entradas = 0,
@@ -129,9 +185,43 @@ const resumoTransactions = async (objTransaction) => {
     entradaTotal = 0,
     saidaTotal = 0;
 
+    let diaResetConta;
+
+    try {
+      diaResetConta = await ConfiguracoesGerais.findOne({ idConfiguracoes: 1 })
+    } catch (error) {
+      console.error('Erro ao achar Configuração!');
+      // console.error("Log do Erro: ", error);
+      throw error;
+    };
+
   try {
-    transacoesEncontradas = await AlimentacaoTransaction.find();
-    
+    transacoesEncontradas = await AlimentacaoTransaction.aggregate([
+      {
+        $match: {
+          "date": {
+            $gte: new Date(`2024-${dateMes}-${diaResetConta.date.getDate() }`),
+            $lt: new Date(`2024-${dateMes + 1}-${diaResetConta.date.getDate()}`)
+          }, // Filtrar somente as parcelas com status "Pago"
+        }
+      },
+      {
+        $group: {
+          _id: "$_id",
+          // doc: { $first: "$$ROOT" },
+          date: { $first: "$date" },
+          valor: { $first: "$valor" },
+          tipoValor: { $first: "$tipoValor" },
+          statusTransacao: { $first: "$statusTransacao" },
+        }
+      },
+      // {
+      //   $replaceRoot: { newRoot: "$doc" }
+      // }
+    ]);
+
+    // console.log('transacoesEncontradas: ', transacoesEncontradas);
+
     total = transacoesEncontradas.forEach((transacao) => {
       if (transacao.tipoValor === 'Entrada' & transacao.statusTransacao === 'Recebido') {
         entradas += transacao.valor;
@@ -166,9 +256,10 @@ const resumoTransactions = async (objTransaction) => {
 
 module.exports = {
   createTransaction,
-  searchTransaction,
-  searchTransactions,
+  readTransaction,
+  readTransactions,
   updateTransaction,
   deleteTransaction,
+  searchTransactions,
   resumoTransactions,
 };
