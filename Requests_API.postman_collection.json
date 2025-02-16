@@ -1,0 +1,390 @@
+{
+	"info": {
+		"_postman_id": "0358c6a4-54b0-4631-9a49-1fa527c43934",
+		"name": "Finance-Api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19470845"
+	},
+	"item": [
+		{
+			"name": "Alimentação",
+			"item": [
+				{
+					"name": "Deletar Transação",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"idTransacao\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3332/alimentacao/transaction/delete",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"alimentacao",
+								"transaction",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Lista de Transações",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Visualizar Transação",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3332/alimentacao/transaction/search?idTransacao=2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"alimentacao",
+								"transaction",
+								"search"
+							],
+							"query": [
+								{
+									"key": "idTransacao",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Transação",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Conta Fisica S\",\r\n      \"valor\": 15,\r\n      \"categoria\": \"Teste\",\r\n      \"tipoValor\": \"saida\",\r\n      \"statusTransacao\": \"pago\",\r\n      \"horaTransacao\": \"20:30\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3332/alimentacao/transaction/update?idTransacao=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"alimentacao",
+								"transaction",
+								"update"
+							],
+							"query": [
+								{
+									"key": "idTransacao",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cartao de Crédito",
+			"item": [
+				{
+					"name": "Deletar Transação",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"idTransacao\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3332/alimentacao/transaction/delete",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"alimentacao",
+								"transaction",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Lista de Transações",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Visualizar Transação",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3332/alimentacao/transaction/search?idTransacao=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"alimentacao",
+								"transaction",
+								"search"
+							],
+							"query": [
+								{
+									"key": "idTransacao",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Resumo Transações",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3332/cartao-credito/transactions/resumo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"cartao-credito",
+								"transactions",
+								"resumo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Transação",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Conta Fisica S\",\r\n      \"valor\": 15,\r\n      \"categoria\": \"Teste\",\r\n      \"tipoValor\": \"saida\",\r\n      \"statusTransacao\": \"pago\",\r\n      \"horaTransacao\": \"20:30\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3332/alimentacao/transaction/update?idTransacao=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"alimentacao",
+								"transaction",
+								"update"
+							],
+							"query": [
+								{
+									"key": "idTransacao",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Transações",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"dataSearch\": {\r\n        // \"estabelecimento\": \"\",\r\n        \"cartaoCredito\": 1515,\r\n        \"mesesdoAno\": 3\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3332/cartao-credito/transaction/search",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"cartao-credito",
+								"transaction",
+								"search"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Conta Física",
+			"item": [
+				{
+					"name": "Deletar Transação",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"idTransacao\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3332/alimentacao/transaction/delete",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"alimentacao",
+								"transaction",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Lista de Transações",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3332/conta-fisica/transaction/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"conta-fisica",
+								"transaction",
+								"list"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3332/alimentacao/transaction/list",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3332",
+					"path": [
+						"alimentacao",
+						"transaction",
+						"list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Transacao Alimentacao",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"Atacadão compras 2\",\r\n    \"tipoTransacao\": \"conta-poupanca\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3332/transactions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3332",
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
